@@ -1,0 +1,33 @@
+<section aria-label="Sign In Section" class="grid place-items-center min-h-dvh lg:min-h-screen">
+  <app-container>
+    <div
+      class="flex flex-col max-w-sm w-full rounded-md border border-border bg-foreground p-5 z-50"
+    >
+      <figure>
+        <img src="/pico_logo.webp" alt="Pico logo" />
+      </figure>
+
+      <!-- Data -->
+      <div class="flex flex-col items-center text-center gap-y-1.5 text-primary-foreground">
+        <h1 class="text-3xl">Ciao!</h1>
+        <h3 class="text-xl tracking-tight">
+          Sono il tuo agente
+          <span class="font-secondary font-medium text-2xl text-success">PICO</span>.
+        </h3>
+        <p class="text-sm text-muted-foreground tracking-tight max-w-sm">
+          Accedi con il tuo account Microsoft per continuare.
+        </p>
+      </div>
+
+      <!-- Actions -->
+      <button
+        aria-label="Sign In With Azure / Microsoft Account"
+        class="flex items-center justify-center gap-x-3 font-medium bg-background text-foreground mt-5 px-3 py-2 rounded-md transition-colors duration-200 ease-in-out hover:bg-muted"
+        (click)="login()"
+      >
+        <img src="/microsoft-logo.webp" alt="Microsoft Logo" class="max-w-6" />
+        Continua con Microsoft
+      </button>
+    </div>
+  </app-container>
+</section>

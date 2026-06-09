@@ -1,0 +1,326 @@
+@if (ticketId() || ticketNumber()) {
+  <section [attr.aria-label]="'Ticket Page ' + ticketId()" class="my-5">
+    <!-- Ticket Header -->
+    <div class="flex flex-col bg-primary-foreground p-2 rounded-md">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:gap-2">
+        <div class="flex flex-col gap-y-2 sm:flex-row sm:gap-x-3">
+          <!-- Informations -->
+          <div class="flex items-center gap-x-1.5">
+            <span class="text-xs text-muted-foreground uppercase font-medium">Ticket #</span>
+            <small class="inline-flex items-center bg-muted rounded-sm px-1.5 font-semibold">{{
+              ticket()?.ticketNumber || 'N/A'
+            }}</small>
+          </div>
+
+          <!-- State & Escalation -->
+          <div class="flex items-center gap-x-1.5">
+            @if (ticket()?.escalation) {
+              <div class="flex items-center gap-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-flag-icon lucide-flag size-3.5 stroke-orange-400"
+                >
+                  <path
+                    d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"
+                  />
+                </svg>
+
+                <span class="text-muted-foreground font-medium text-xs">Scalato</span>
+              </div>
+            }
+
+            <div class="flex items-center gap-1.5">
+              <div
+                class="size-2 rounded-full"
+                [style.background]="
+                  ticketsStatesConfiguration[ticket()?.stato ?? '']?.background || '#000000'
+                "
+                [attr.aria-label]="
+                  ticketsStatesConfiguration[ticket()?.stato ?? '']?.label || 'N/A'
+                "
+              ></div>
+
+              <span class="text-muted-foreground font-medium text-xs">{{
+                ticketsStatesConfiguration[ticket()?.stato ?? '']?.label || 'N/A'
+              }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-stretch gap-2">
+          @if (ticket()?.stato !== 'RESOLVED') {
+            <button
+              class="inline-flex items-center justify-center w-full sm:max-w-max gap-x-1 px-2 py-1.5 bg-primary rounded-md text-primary-foreground font-medium text-sm mt-2 sm:mt-0 transition-colors duration-200 ease-in-out hover:bg-primary/90"
+              aria-label="Risolvi Ticket"
+              (click)="solveTicket()"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-check-icon lucide-check size-5"
+              >
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+
+              Risolvi
+            </button>
+          }
+
+          <button
+            class="inline-flex items-center justify-center w-full sm:max-w-max gap-x-1 px-2 py-1.5 bg-error rounded-md text-primary-foreground font-medium text-sm mt-2 sm:mt-0 transition-colors duration-200 ease-in-out hover:bg-error/90"
+            aria-label="Cancella Ticket"
+            (click)="deleteTicket()"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-trash-icon lucide-trash size-5"
+            >
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+              <path d="M3 6h18" />
+              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            </svg>
+
+            Cancella
+          </button>
+        </div>
+      </div>
+
+      <!-- Object -->
+      <div class="flex flex-col gap-y-1 mt-1">
+        <h3 class="text-lg font-semibold line-clamp-2">{{ ticket()?.titolo || 'N/A' }}</h3>
+
+        <div class="flex flex-wrap gap-x-3 gap-y-2">
+          <!-- User Initials -->
+          <div class="flex items-center gap-x-2">
+            <span
+              class="grid place-items-center text-sm bg-muted-foreground rounded-full border border-border p-1 text-primary-foreground font-medium"
+              aria-label="User"
+              >{{ userInitials() }}</span
+            >
+            <span class="text-xs text-muted-foreground">{{
+              ticket()?.richiedente?.email || 'N/A'
+            }}</span>
+          </div>
+
+          <!-- Creation Date & Last Update Dates -->
+          <div class="flex flex-wrap gap-y-1.5 items-center gap-x-2">
+            <!-- Creation Date -->
+            <div class="flex items-center gap-x-1 line-clamp-1">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-clock-plus-icon lucide-clock-plus size-4"
+              >
+                <path d="M12 6v6l3.644 1.822" />
+                <path d="M16 19h6" />
+                <path d="M19 16v6" />
+                <path d="M21.92 13.267a10 10 0 1 0-8.653 8.653" />
+              </svg>
+
+              <span class="text-muted-foreground text-xs"
+                >Creato:
+                {{
+                  ticket()?.dataCreazione ? (ticket()?.dataCreazione | date: 'd MMM yyyy') : 'N/A'
+                }}</span
+              >
+            </div>
+
+            <!-- Last Update Date -->
+
+            <div class="flex items-center gap-x-1 line-clamp-1">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-rotate-cw-icon lucide-rotate-cw size-4"
+              >
+                <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                <path d="M21 3v5h-5" />
+              </svg>
+
+              <span class="text-muted-foreground text-xs line-clamp-1"
+                >Aggiornato:
+                {{
+                  ticket()?.dataAggiornamento
+                    ? (ticket()?.dataAggiornamento | date: 'd MMM yyyy')
+                    : 'N/A'
+                }}</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Escalation Motivation -->
+      @if (ticket()?.escalation) {
+        <div class="flex flex-col mt-3 gap-y-1">
+          <div class="flex items-center gap-x-1">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-flag-icon lucide-flag size-3.5 stroke-orange-400"
+            >
+              <path
+                d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"
+              />
+            </svg>
+
+            <small class="text-sm text-orange-400 font-medium">Motivazione Escalation</small>
+          </div>
+
+          <p class="text-xs sm:text-sm tracking-tight text-muted-foreground">
+            {{ ticket()?.escalationReason }}
+          </p>
+        </div>
+      }
+    </div>
+
+    <!-- Ticket Messages -->
+    @if ((ticket()?.messages?.length ?? 0) > 0) {
+      <ul
+        class="grid grid-cols-1 gap-y-3 mt-3 rounded-lg border border-border p-2 md:p-4 bg-primary-foreground max-h-150 h-full overflow-y-auto"
+        aria-orientation="vertical"
+      >
+        @for (message of orderedMessages(); track message.id) {
+          <li class="flex flex-col gap-y-1">
+            <span
+              class="flex items-center gap-x-1.5 bg-background border border-border rounded-full px-1.5 py-0.5 font-medium text-xs sm:text-sm"
+              [ngClass]="message.direction === 'customer' ? 'place-self-end' : 'place-self-start'"
+              >{{ message.sender?.name || 'Sconosciuto' }}</span
+            >
+
+            <article
+              class="flex flex-col p-2.5 rounded-md overflow-hidden w-full sm:max-w-[65%] lg:max-w-[60%] shadow-md shadow-muted-foreground/10"
+              [ngClass]="
+                message.direction === 'customer'
+                  ? 'bg-green-300 place-self-end'
+                  : 'bg-foreground text-primary-foreground place-self-start'
+              "
+            >
+              <!-- Message Text -->
+              <p class="text-xs sm:text-sm tracking-tight overflow-hidden">
+                {{ message.text }}
+              </p>
+
+              <!-- Message Timestamp -->
+              <span
+                class="text-xs sm:text-sm mt-1 font-medium self-end"
+                [ngClass]="message.direction === 'customer' ? 'text-foreground' : 'text-muted'"
+                >{{
+                  message.createdAt ? (message.createdAt | date: 'd MMM yyyy, h:mm a') : 'N/A'
+                }}</span
+              >
+            </article>
+          </li>
+        }
+      </ul>
+
+      <!-- Reply -->
+      @if (ticket()?.stato !== 'RESOLVED') {
+        <form
+          class="flex flex-col gap-y-1.5 w-full bg-primary-foreground text-sm rounded-md p-2 mt-3"
+        >
+          <div class="flex items-center gap-x-1 text-sm font-medium">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-reply-icon lucide-reply"
+            >
+              <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
+              <path d="m9 17-5-5 5-5" />
+            </svg>
+
+            Rispondi
+          </div>
+
+          <div class="flex flex-col gap-y-2">
+            <textarea
+              name="helpdesk-reply"
+              id="helpdesk-reply"
+              placeholder="Scrivi una risposta..."
+              [formControl]="replyMessageText"
+              class="h-30 bg-input border border-border rounded-md p-2 text-foreground text-sm resize-none focus:outline-primary transition-all duration-200 ease-in-out"
+            ></textarea>
+
+            <button
+              class="inline-flex items-center justify-center place-self-end sm:max-w-max gap-x-1.5 px-2 py-1.5 bg-primary rounded-md text-primary-foreground font-medium text-sm sm:mt-0 transition-colors duration-200 ease-in-out hover:bg-primary/90"
+              aria-label="Invia messaggio"
+              (click)="reply($event)"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-send-icon lucide-send size-4.5"
+              >
+                <path
+                  d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"
+                />
+                <path d="m21.854 2.147-10.94 10.939" />
+              </svg>
+
+              Invia messaggio
+            </button>
+          </div>
+        </form>
+      }
+    }
+  </section>
+}

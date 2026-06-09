@@ -1,0 +1,148 @@
+<app-header />
+
+<section aria-label="Tickets Section" class="pt-20 min-h-dvh lg:min-h-screen bg-background">
+  <app-container>
+    <!-- Statistics -->
+    <ul class="grid grid-cols-2 md:grid-cols-4 gap-2 w-full">
+      @for (statistic of statistics(); track statistic.status) {
+        <li
+          class="flex items-center gap-x-3.5 p-2 w-full bg-primary-foreground rounded-md border-l-2 sm:border-l-3"
+          [style.border-color]="statistic.color"
+        >
+          <span class="grid place-items-center bg-muted rounded-full p-2 border border-border">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-tickets-icon lucide-tickets"
+            >
+              <path d="m3.173 8.18 11-5a2 2 0 0 1 2.647.993L18.56 8" />
+              <path d="M6 10V8" />
+              <path d="M6 14v1" />
+              <path d="M6 19v2" />
+              <rect x="2" y="8" width="20" height="13" rx="2" />
+            </svg>
+          </span>
+
+          <div class="flex flex-col">
+            <p class="text-sm text-muted-foreground">{{ statistic.status }}</p>
+            <p class="text-lg font-semibold">{{ statistic.count }}</p>
+          </div>
+        </li>
+      }
+    </ul>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[350px_1fr] lg:gap-x-3">
+      <!-- Tickets (Left) -->
+      <div class="flex flex-col mt-5 lg:pr-3 lg:border-r lg:border-r-border">
+        <!-- Tickets Search -->
+        <form
+          class="flex items-center gap-x-2.5 bg-input border border-border p-2 rounded-lg text-sm w-full"
+          [class.hidden]="hasClickedTicket()"
+          [class.lg:flex]="true"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-search-icon lucide-search"
+          >
+            <path d="m21 21-4.34-4.34" />
+            <circle cx="11" cy="11" r="8" />
+          </svg>
+
+          <input
+            type="search"
+            inputmode="latin"
+            placeholder="Cerca per numero o richiedente"
+            class="flex items-center w-full"
+          />
+        </form>
+
+        <!-- Tickets Filters -->
+        <ul
+          class="flex items-center gap-x-1 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-hidden mt-3"
+          aria-orientation="horizontal"
+          [class.hidden]="hasClickedTicket()"
+          [class.lg:flex]="true"
+        >
+          @for (filter of filters(); track filter.value) {
+            <li
+              class="inline-flex shrink-0 items-center font-medium text-sm py-1.5 px-3 rounded-md line-clamp-1 cursor-pointer transition-colors duration-200 hover:bg-primary hover:text-primary-foreground"
+              [ngClass]="isSelectedStatus(filter.value) ? 'bg-primary text-primary-foreground' : ''"
+              (click)="toggleStatusFilter(filter.value)"
+            >
+              {{ filter.label }}
+            </li>
+          }
+        </ul>
+
+        <!-- Go Back Button / Deselect Ticket -->
+        <button
+          class="items-center justify-center max-w-max gap-x-1 px-2 py-1.5 bg-primary rounded-md text-primary-foreground font-medium text-sm mt-3 sm:mt-0 transition-colors duration-200 ease-in-out hover:bg-primary/90"
+          aria-label="Deseleziona Ticket / Torna Indietro"
+          [ngClass]="!hasClickedTicket() ? 'hidden' : 'flex lg:hidden'"
+          (click)="deselectTicket()"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-undo2-icon lucide-undo-2 size-5"
+          >
+            <path d="M9 14 4 9l5-5" />
+            <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" />
+          </svg>
+
+          Torna Indietro
+        </button>
+
+        <!-- Tickets List -->
+        <ul
+          class="grid grid-cols-1 w-full mt-3"
+          [class.hidden]="hasClickedTicket()"
+          [class.lg:block]="true"
+        >
+          @for (ticket of tickets(); track ticket._id) {
+            @defer (on viewport; prefetch on idle) {
+              <app-ticket-card [ticket]="ticket" />
+            } @placeholder {
+              <app-ticket-skeleton-card />
+            } @loading (minimum 500ms) {
+              <app-ticket-skeleton-card />
+            }
+          }
+        </ul>
+      </div>
+
+      <!-- Tickets Router Module (Ticket ID) (Right) -->
+      <div [class.hidden]="!hasClickedTicket()" [class.lg:block]="true">
+        @defer (on viewport; prefetch on idle) {
+          <router-outlet />
+        } @placeholder {
+          <app-ticket-skeleton-detail />
+        } @loading (minimum 500ms) {
+          <app-ticket-skeleton-detail />
+        }
+      </div>
+    </div>
+  </app-container>
+</section>

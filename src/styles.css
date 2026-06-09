@@ -1,3 +1,68 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+
+@theme {
+  --color-background: #f5f4f2;
+  --color-foreground: #1a1a1a;
+
+  --color-border: #e2e0db;
+  --color-input: #eeede9;
+
+  --color-primary: #2563eb;
+  --color-secondary: #e8e6e1;
+  --color-primary-foreground: #ffffff;
+  --color-secondary-foreground: #3d3b36;
+
+  --color-muted: #e8e6e1;
+  --color-muted-foreground: #8a8780;
+
+  --color-success: #22c55e;
+  --color-warning: #facc15;
+  --color-error: #ef4444;
+
+  --color-sidebar: #faf9f7;
+
+  --font-primary: 'Inter', sans-serif;
+  --font-secondary: 'Asimovian', sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground font-primary overflow-x-hidden;
+  }
+
+  html {
+    @apply antialiased scroll-smooth;
+  }
+
+  img {
+    @apply block max-w-full h-auto select-none;
+  }
+
+  a {
+    @apply text-inherit no-underline hover:underline;
+  }
+
+  button,
+  input {
+    @apply bg-transparent border-none outline-none;
+  }
+
+  button {
+    @apply cursor-pointer;
+  }
+
+  ul {
+    @apply list-none;
+  }
+}
+
+.scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
