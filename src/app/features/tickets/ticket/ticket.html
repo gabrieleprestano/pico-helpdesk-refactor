@@ -250,10 +250,8 @@
               <span
                 class="text-xs sm:text-sm mt-1 font-medium self-end"
                 [ngClass]="message.direction === 'customer' ? 'text-muted' : 'text-foreground'"
-                >{{
-                  message.createdAt ? (message.createdAt | date: 'd MMM yyyy, h:mm a') : 'N/A'
-                }}</span
-              >
+                >{{ message.createdAt ? (message.createdAt | date: 'd MMM yyyy, h:mm a') : 'N/A' }}
+              </span>
             </article>
           </li>
         }
@@ -288,13 +286,22 @@
             <textarea
               name="helpdesk-reply"
               id="helpdesk-reply"
-              placeholder="Scrivi una risposta..."
+              minlength="15"
+              maxlength="800"
+              inputmode="text"
+              placeholder="Scrivi una risposta... (Minimo 15 caratteri, massimo 800)"
               [formControl]="replyMessageText"
               class="h-30 bg-input border border-border rounded-md p-2 text-foreground text-sm resize-none focus:outline-primary transition-all duration-200 ease-in-out"
             ></textarea>
 
+            @if (showReplyTextErrors()) {
+              <p class="text-error text-sm">
+                {{ showReplyTextErrors() }}
+              </p>
+            }
+
             <button
-              class="inline-flex items-center justify-center place-self-end sm:max-w-max gap-x-1.5 px-2 py-1.5  rounded-md text-primary-foreground font-medium text-sm sm:mt-0 transition-colors duration-200 ease-in-out"
+              class="inline-flex items-center justify-center place-self-end sm:max-w-max gap-x-1.5 px-2 py-1.5 rounded-md text-primary-foreground font-medium text-sm sm:mt-0 transition-colors duration-200 ease-in-out"
               [ngClass]="
                 replyMessageText.invalid || replyMessageText.value.trim() === ''
                   ? 'bg-primary/50 cursor-not-allowed'
@@ -302,7 +309,9 @@
               "
               aria-label="Invia messaggio"
               [disabled]="replyMessageText.invalid || replyMessageText.value.trim() === ''"
-              [attr.aria-disabled]="replyMessageText.invalid || replyMessageText.value.trim() === '' ? 'true' : 'false'"
+              [attr.aria-disabled]="
+                replyMessageText.invalid || replyMessageText.value.trim() === '' ? 'true' : 'false'
+              "
               (click)="reply($event)"
             >
               <svg

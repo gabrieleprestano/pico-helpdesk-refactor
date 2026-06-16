@@ -3,7 +3,7 @@ import { Component, computed, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TicketsService } from '../../../services/tickets.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-ticket',
@@ -23,7 +23,22 @@ export class Ticket {
 
   isPermaLink = this.ticketsService.isPermaLink;
 
-  replyMessageText = new FormControl<string>('', { nonNullable: true });
+  replyMessageText = new FormControl<string>('', { nonNullable: true, validators: [Validators.minLength(15), Validators.maxLength(800), Validators.pattern(/^\s*\S.*$/)] });
+
+  showReplyTextErrors() {
+    const control = this.replyMessageText;
+
+    if (control.hasError('minlength')) {
+      return `Il messaggio di risposta deve essere lungo almeno ${control.getError('minlength').requiredLength} caratteri.`;
+    }
+    if (control.hasError('maxlength')) {
+      return `Il messaggio di risposta non può superare i ${control.getError('maxlength').requiredLength} caratteri.`;
+    }
+    if (control.hasError('pattern')) {
+      return 'Il messaggio di risposta non può essere composto solo da spazi bianchi.';
+    }
+    return null;
+  }
 
   errorMessage = computed(() => {
     const err = this.ticketsService.ticketErrorMessage();
