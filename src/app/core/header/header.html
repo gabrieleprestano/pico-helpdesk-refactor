@@ -13,7 +13,7 @@
 
     <!-- Actions -->
     @if (user()) {
-      <div class="flex items-center gap-x-1.5">
+      <div class="relative flex items-center gap-x-1.5" (click)="toggleUserMenu()">
         <!-- User -->
         <div class="flex items-center gap-x-3">
           <span
@@ -26,6 +26,11 @@
             <h3 class="text-sm font-medium">{{ userName() }}</h3>
             <small class="text-xs text-muted-foreground">{{ userEmail() }}</small>
           </div>
+        </div>
+
+        <!-- User Menu -->
+        <div>
+          <app-user-menu [isOpen]="isUserMenuOpen()" />
         </div>
       </div>
     }

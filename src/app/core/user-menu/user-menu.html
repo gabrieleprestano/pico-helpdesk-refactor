@@ -1,0 +1,51 @@
+<article
+  class="absolute flex flex-col p-2 right-0 bg-primary-foreground border border-border transition-all duration-200 will-change-transform rounded-md shadow-lg z-50"
+  [ngClass]="
+    isOpen() ? 'top-14 pointer-events-auto visible' : '-top-30 pointer-events-none invisible'
+  "
+>
+  <ul class="flex flex-col gap-y-1">
+    <li
+      class="flex items-center justify-between gap-x-3 truncate rounded-md p-2 font-medium text-muted-foreground hover:bg-muted cursor-pointer select-none"
+    >
+      <span>Dark Theme</span>
+
+      <div
+        class="relative flex items-center bg-input rounded-full w-10 h-6 border border-border transition-colors duration-200"
+        [class.bg-primary]="themeService.theme() === 'dark'"
+        aria-label="Switch Theme"
+        (click)="toggleTheme($event)"
+      >
+        <span
+          class="absolute top-2/4 -translate-y-2/4 bg-muted-foreground rounded-full size-4.5 transition-all duration-200 ease-in-out will-change-transform shadow-sm"
+          [class.translate-x-4]="themeService.theme() === 'dark'"
+          [class.bg-white]="themeService.theme() === 'dark'"
+        ></span>
+      </div>
+    </li>
+
+    <li
+      class="flex items-center gap-x-3 justify-between truncate rounded-md p-2 font-medium bg-error text-white cursor-pointer transition-colors duration-200 hover:bg-error/80 select-none"
+      (click)="signOut($event)"
+    >
+      <span>Sign Out</span>
+
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="21"
+        height="21"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="lucide lucide-log-out-icon lucide-log-out"
+      >
+        <path d="m16 17 5-5-5-5" />
+        <path d="M21 12H9" />
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      </svg>
+    </li>
+  </ul>
+</article>

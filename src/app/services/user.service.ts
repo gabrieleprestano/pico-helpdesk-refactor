@@ -58,7 +58,7 @@ export class UserService {
     if (this.route.snapshot.queryParams['error']) {
       this._error.set(
         this.route.snapshot.queryParams['error_description'] ||
-          'An error occurred during authentication.',
+        'An error occurred during authentication.',
       );
       this._isLoading.set(false);
       return;
@@ -93,5 +93,6 @@ export class UserService {
   logout() {
     localStorage.removeItem('pico_user');
     this._user.set(null);
+    this.router.navigate(['/login']);
   }
 }

@@ -1,11 +1,12 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Container } from '../../layout/container/container';
 import { UserService } from '../../services/user.service';
 import { RouterModule } from '@angular/router';
+import { UserMenu } from "../user-menu/user-menu";
 
 @Component({
   selector: 'app-header',
-  imports: [Container, RouterModule],
+  imports: [Container, RouterModule, UserMenu],
   templateUrl: './header.html',
   styleUrl: './header.css',
 })
@@ -22,6 +23,12 @@ export class Header {
     const [first = '', second = ''] = this.userEmail().split('.');
     return `${first.charAt(0).toUpperCase()}${second.charAt(0).toUpperCase()}`;
   });
+
+  isUserMenuOpen = signal<boolean>(false);
+
+  toggleUserMenu() {
+    this.isUserMenuOpen.update((prev) => !prev);
+  }
 
   logout() {
     this.userService.logout();
