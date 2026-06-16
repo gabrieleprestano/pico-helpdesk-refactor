@@ -238,11 +238,14 @@
               [ngClass]="
                 message.direction === 'customer'
                   ? 'bg-foreground text-primary-foreground place-self-start'
-                  : 'bg-green-300 text-muted place-self-end'
+                  : 'bg-green-400 text-muted place-self-end'
               "
             >
               <!-- Message Text -->
-              <p class="text-xs sm:text-sm tracking-tight overflow-hidden">
+              <p
+                class="text-xs sm:text-sm tracking-tight overflow-hidden"
+                [ngClass]="message.direction === 'customer' ? 'text-muted' : 'text-foreground'"
+              >
                 {{ message.text }}
               </p>
 
