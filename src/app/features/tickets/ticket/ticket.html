@@ -229,7 +229,7 @@
           <li class="flex flex-col gap-y-1">
             <span
               class="flex items-center gap-x-1.5 bg-background border border-border rounded-full px-1.5 py-0.5 font-medium text-xs sm:text-sm"
-              [ngClass]="message.direction === 'customer' ? 'place-self-end' : 'place-self-start'"
+              [ngClass]="message.direction === 'customer' ? 'place-self-start' : 'place-self-end'"
               >{{ message.sender?.name || 'Sconosciuto' }}</span
             >
 
@@ -237,8 +237,8 @@
               class="flex flex-col p-2.5 rounded-md overflow-hidden w-full sm:max-w-[65%] lg:max-w-[60%] shadow-md shadow-muted-foreground/10"
               [ngClass]="
                 message.direction === 'customer'
-                  ? 'bg-green-300 place-self-end'
-                  : 'bg-foreground text-primary-foreground place-self-start'
+                  ? 'bg-foreground text-primary-foreground place-self-start'
+                  : 'bg-green-300 place-self-end'
               "
             >
               <!-- Message Text -->
@@ -249,7 +249,7 @@
               <!-- Message Timestamp -->
               <span
                 class="text-xs sm:text-sm mt-1 font-medium self-end"
-                [ngClass]="message.direction === 'customer' ? 'text-foreground' : 'text-muted'"
+                [ngClass]="message.direction === 'customer' ? 'text-muted' : 'text-foreground'"
                 >{{
                   message.createdAt ? (message.createdAt | date: 'd MMM yyyy, h:mm a') : 'N/A'
                 }}</span
@@ -294,8 +294,15 @@
             ></textarea>
 
             <button
-              class="inline-flex items-center justify-center place-self-end sm:max-w-max gap-x-1.5 px-2 py-1.5 bg-primary rounded-md text-primary-foreground font-medium text-sm sm:mt-0 transition-colors duration-200 ease-in-out hover:bg-primary/90"
+              class="inline-flex items-center justify-center place-self-end sm:max-w-max gap-x-1.5 px-2 py-1.5  rounded-md text-primary-foreground font-medium text-sm sm:mt-0 transition-colors duration-200 ease-in-out"
+              [ngClass]="
+                replyMessageText.invalid || replyMessageText.value.trim() === ''
+                  ? 'bg-primary/50 cursor-not-allowed'
+                  : 'bg-primary hover:bg-primary/90'
+              "
               aria-label="Invia messaggio"
+              [disabled]="replyMessageText.invalid || replyMessageText.value.trim() === ''"
+              [attr.aria-disabled]="replyMessageText.invalid || replyMessageText.value.trim() === '' ? 'true' : 'false'"
               (click)="reply($event)"
             >
               <svg
