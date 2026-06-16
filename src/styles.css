@@ -32,6 +32,40 @@
     @apply bg-background text-foreground font-primary overflow-x-hidden;
   }
 
+  /* Dark mode */
+  html[data-theme='dark'] {
+    /* Sfondo totale della pagina (Nero profondo) */
+    --color-background: #121212;
+
+    /* Il testo principale diventa chiaro */
+    --color-foreground: #f5f4f2;
+    --color-sidebar: #181715;
+
+    /* Elementi di interazione (Bordi e Input) */
+    --color-border: #2d2b26;
+    --color-input: #1a1917;
+
+    /* Il blu dei bottoni "Risolvi" o "Invia" */
+    --color-primary: #3b82f6;
+
+    /* --- IL TRUCCO MAGICO PER LE TUE CARD --- */
+    /* Nel light mode era bianco (#ffffff). Nel dark mode lo facciamo diventare un grigio card spettacolare! */
+    --color-primary-foreground: #1a1917;
+
+    /* Brand Secondary e Muted */
+    --color-secondary: #262421;
+    /* Testo dentro le card che usa il foreground secondario */
+    --color-secondary-foreground: #e8e6e1;
+    --color-muted: #262421;
+    --color-muted-foreground: #a19e95;
+
+    /* Stati e Notifiche adattati al buio */
+    --color-success: #4ade80;
+    --color-warning: #fef08a;
+    /* Il tuo bottone "Cancella" usa bg-error, lo rendiamo un rosso scuro opaco perfetto per il dark */
+    --color-error: #ef4444;
+  }
+
   html {
     @apply antialiased scroll-smooth;
   }

@@ -1,10 +1,11 @@
 import { Component, computed, inject } from '@angular/core';
 import { Container } from '../../layout/container/container';
 import { UserService } from '../../services/user.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-header',
-  imports: [Container],
+  imports: [Container, RouterModule],
   templateUrl: './header.html',
   styleUrl: './header.css',
 })

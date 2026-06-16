@@ -238,7 +238,7 @@
               [ngClass]="
                 message.direction === 'customer'
                   ? 'bg-foreground text-primary-foreground place-self-start'
-                  : 'bg-green-300 place-self-end'
+                  : 'bg-green-300 text-muted place-self-end'
               "
             >
               <!-- Message Text -->
@@ -291,7 +291,7 @@
               inputmode="text"
               placeholder="Scrivi una risposta... (Minimo 15 caratteri, massimo 800)"
               [formControl]="replyMessageText"
-              class="h-30 bg-input border border-border rounded-md p-2 text-foreground text-sm resize-none focus:outline-primary transition-all duration-200 ease-in-out"
+              class="h-30 bg-input border border-border rounded-md p-2 text-foreground text-sm resize-none outline-none focus:ring focus:ring-primary focus:ring-offset-0 transition-all duration-200 ease-in-out"
             ></textarea>
 
             @if (showReplyTextErrors()) {
