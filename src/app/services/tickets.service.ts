@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { computed, inject, Service, signal } from '@angular/core';
+import { computed, effect, inject, Service, signal } from '@angular/core';
 import { environment } from '../environments/environment';
 import {
   ReplyTicketPayload,
@@ -18,12 +18,23 @@ import { ActivatedRoute } from '@angular/router';
 
 @Service()
 export class TicketsService {
-  private http = inject(HttpClient);
-  private route = inject(ActivatedRoute);
-  private userService = inject(UserService);
+  protected http = inject(HttpClient);
+  protected route = inject(ActivatedRoute);
+  protected userService = inject(UserService);
 
   protected readonly apiUrl = environment.apiBaseUrl;
 
+  constructor() {
+    effect(() => {
+      const ticketsFilters = this.activeTicketStatusFilters();
+
+      if (ticketsFilters.length > 0) {
+        localStorage.setItem('active_ticket_status_filters', JSON.stringify(ticketsFilters));
+      }
+    });
+  }
+
+  // toSignal to avoid multiple subscriptions to the same observable (route.paramMap)
   params = toSignal(
     this.route.paramMap.pipe(
       map((params) => ({
@@ -100,8 +111,49 @@ export class TicketsService {
   private readonly SCALATO = 'SCALATO' as TicketStatus;
   private readonly TUTTI = 'ALL' as TicketStatus;
 
-  private _activeTicketStatusFilters = signal<TicketStatus[]>([this.SCALATO]);
+  private _activeTicketStatusFilters = signal<TicketStatus[]>(
+    (() => {
+      const savedFilters = localStorage.getItem('active_ticket_status_filters');
+      return savedFilters ? (JSON.parse(savedFilters) as TicketStatus[]) : [this.SCALATO];
+    })(),
+  );
   readonly activeTicketStatusFilters = this._activeTicketStatusFilters.asReadonly();
+
+  // Informazioni / Statistiche
+  readonly informations = computed(() => ({
+    totalTickets: this.tickets()?.length || 0,
+    openTickets: this.tickets()?.filter((ticket) => ticket.stato === 'OPEN').length || 0,
+    newTickets: this.tickets()?.filter((ticket) => ticket.stato === 'NEW').length || 0,
+    waitingTickets: this.tickets()?.filter((ticket) => ticket.stato === 'WAITING').length || 0,
+    resolvedTickets: this.tickets()?.filter((ticket) => ticket.stato === 'RESOLVED').length || 0,
+  }));
+
+  readonly statistics = computed(() => [
+    {
+      lucideIcon: LucideTickets,
+      status: 'Nuovi',
+      count: this.informations().newTickets || 0,
+      color: '#22c55e',
+    },
+    {
+      lucideIcon: LucideTickets,
+      status: 'Aperti',
+      count: this.informations().openTickets || 0,
+      color: '#22c55e',
+    },
+    {
+      lucideIcon: LucideTickets,
+      status: 'In attesa',
+      count: this.informations().waitingTickets || 0,
+      color: '#facc15',
+    },
+    {
+      lucideIcon: LucideTickets,
+      status: 'Risolti',
+      count: this.informations().resolvedTickets || 0,
+      color: '#22c55e',
+    },
+  ]);
 
   readonly filtriStati = computed(() => [
     { label: 'Scalati', value: this.SCALATO },
@@ -113,67 +165,59 @@ export class TicketsService {
     { label: 'Risolti', value: 'RESOLVED' as TicketStatus },
   ]);
 
+  // Ordine di priorità per lo stato dei ticket
+  readonly priorityOrder: Record<TicketStatus, number> = {
+    'WAITING': 1,
+    'OPEN': 2,
+    'NEW': 3,
+    'RESOLVED': 4,
+  };
+
   readonly filteredTickets = computed(() => {
     const filters = this.activeTicketStatusFilters();
 
-    let filtered = this.tickets() ?? [];
+    let filtered = this.tickets() || [];
 
-    if (!filters || filters.length === 0) return filtered;
+    // // Ricerca testuale su numero ticket, nome/email richiedente, titolo
+    // if (query) {
+    //   filtered = filtered.filter((ticket) => {
+    //     const matchesNumber = ticket.ticketNumber.toString().toLowerCase().includes(query);
+    //     const matchesRequester = ticket.richiedente.nome.toLowerCase().includes(query) || ticket.richiedente.email.toLowerCase().includes(query);
+    //     const matchesTitle = ticket.titolo?.toLowerCase().includes(query);
 
+    //     return matchesNumber || matchesRequester || matchesTitle;
+    //   });
+    // }
+
+    // Filtri di stato/escalation
     if (!filters.includes(this.TUTTI)) {
-      const hasScalatoFilter = filters.includes(this.SCALATO);
-      if (hasScalatoFilter) {
-        filtered = filtered.filter(
-          (ticket) => ticket.escalation === true && ticket.stato !== 'RESOLVED',
-        );
-      }
+      const isTicketScalato = filters.includes(this.SCALATO);
+      const selectedStatuses = filters.filter((filter) => filter !== this.SCALATO);
 
-      const selectedStatuses = filters.filter((status) => status !== this.SCALATO);
-      if (selectedStatuses.length > 0) {
-        filtered = filtered.filter((ticket) => selectedStatuses.includes(ticket.stato));
-      }
+      filtered = filtered.filter((ticket) => {
+        // SE: è selezionato il filtro "Scalati" E il ticket NON è in escalation => ESCLUDI
+        if (isTicketScalato && !ticket.escalation) {
+          return false;
+        }
+
+        // SE: sono selezionati filtri di stato specifici (ex. "Nuovi", "Aperti", etc.) e lo stato del ticket NON è tra quelli selezionati => ESCLUDI
+        if (selectedStatuses.length > 0 && !selectedStatuses.includes(ticket.stato)) {
+          return false;
+        }
+        return true;
+      });
     }
-    return [...filtered].sort(
-      (a, b) => new Date(b.dataAggiornamento).getTime() - new Date(a.dataAggiornamento).getTime(),
-    );
+
+    // Filtri per priorità (es. "In attesa" prima di "Aperti", etc.)
+    if (filters.includes(this.SCALATO)) {
+      return [...filtered].sort((a, b) => {
+        const priorityA = this.priorityOrder[a.stato] || Number.POSITIVE_INFINITY;
+        const priorityB = this.priorityOrder[b.stato] || Number.POSITIVE_INFINITY;
+        return priorityA - priorityB;
+      });
+    }
+    return filtered;
   });
-
-  // Informazioni / Statistiche
-  readonly openTickets =
-    computed(() => this.tickets()?.filter((ticket) => ticket.stato === 'OPEN')) || 0;
-  readonly newTickets =
-    computed(() => this.tickets()?.filter((ticket) => ticket.stato === 'NEW')) || 0;
-  readonly waitingTickets =
-    computed(() => this.tickets()?.filter((ticket) => ticket.stato === 'WAITING')) || 0;
-  readonly resolvedTickets =
-    computed(() => this.tickets()?.filter((ticket) => ticket.stato === 'RESOLVED')) || 0;
-
-  readonly statistics = computed(() => [
-    {
-      lucideIcon: LucideTickets,
-      status: 'Nuovi',
-      count: this.newTickets()?.length || 0,
-      color: '#22c55e',
-    },
-    {
-      lucideIcon: LucideTickets,
-      status: 'Aperti',
-      count: this.openTickets()?.length || 0,
-      color: '#22c55e',
-    },
-    {
-      lucideIcon: LucideTickets,
-      status: 'In attesa',
-      count: this.waitingTickets()?.length || 0,
-      color: '#facc15',
-    },
-    {
-      lucideIcon: LucideTickets,
-      status: 'Risolti',
-      count: this.resolvedTickets()?.length || 0,
-      color: '#22c55e',
-    },
-  ]);
 
   // Metodi
   toggleStatusFilter(status: TicketStatus) {
