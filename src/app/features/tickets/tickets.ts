@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Container } from '../../layout/container/container';
 import { TicketsService } from '../../services/tickets.service';
 import { CommonModule } from '@angular/common';
@@ -35,6 +35,28 @@ export class Tickets {
   filters = this.ticketsService.filtriStati;
 
   hasClickedTicket = this.ticketsService.hasClickedTicket;
+
+  // Pagination
+  currentPage = signal<number>(1);
+  readonly TICKETS_PER_PAGE = 8;
+
+  readonly skip = computed(() => (this.currentPage() - 1) * this.TICKETS_PER_PAGE);
+  readonly totalPages = computed(() => {
+    const totalTickets = this.tickets().length;
+    return Math.ceil(totalTickets / this.TICKETS_PER_PAGE);
+  });
+
+  goToPreviousPage() {
+    if (this.currentPage() > 1) {
+      this.currentPage.set(this.currentPage() - 1);
+    }
+  }
+
+  goToNextPage() {
+    if (this.currentPage() < this.totalPages()) {
+      this.currentPage.set(this.currentPage() + 1);
+    }
+  }
 
   deselectTicket() {
     this.ticketsService.deselectTicket();
