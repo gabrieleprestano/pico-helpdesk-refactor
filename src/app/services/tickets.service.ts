@@ -216,7 +216,11 @@ export class TicketsService {
         return priorityA - priorityB;
       });
     }
-    return filtered;
+    return [...filtered].sort((a, b) => {
+      const dateA = new Date(a.dataAggiornamento).getTime();
+      const dateB = new Date(b.dataAggiornamento).getTime();
+      return dateB - dateA; // Ordina per data di aggiornamento (più recente prima)
+    });
   });
 
   // Metodi
