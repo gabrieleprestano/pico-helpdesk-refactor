@@ -52,9 +52,9 @@ export class TicketsService {
   // Tickets Resource
   ticketsResource = rxResource({
     stream: () => {
-      return this.http
-        .get<Ticket[]>(`${this.apiUrl}/tickets`, { headers: this.userService.getHeaders() })
-        .pipe(tap((tickets) => console.info(console.log('Fetched tickets:', tickets))));
+      return this.http.get<Ticket[]>(`${this.apiUrl}/tickets`, {
+        headers: this.userService.getHeaders(),
+      });
     },
   });
 
@@ -167,10 +167,10 @@ export class TicketsService {
 
   // Ordine di priorità per lo stato dei ticket
   readonly priorityOrder: Record<TicketStatus, number> = {
-    'WAITING': 1,
-    'OPEN': 2,
-    'NEW': 3,
-    'RESOLVED': 4,
+    WAITING: 1,
+    OPEN: 2,
+    NEW: 3,
+    RESOLVED: 4,
   };
 
   readonly filteredTickets = computed(() => {
@@ -208,18 +208,23 @@ export class TicketsService {
       });
     }
 
-    // Filtri per priorità (es. "In attesa" prima di "Aperti", etc.)
-    if (filters.includes(this.SCALATO)) {
-      return [...filtered].sort((a, b) => {
+    return [...filtered].sort((a, b) => {
+      // Ordina per data di aggiornamento (decrescente) e, in caso di parità, per priorità di stato (se il filtro "Scalato" è attivo)
+      const dateA = new Date(a.dataAggiornamento).getTime();
+      const dateB = new Date(b.dataAggiornamento).getTime();
+
+      if (dateB !== dateA) {
+        return dateB - dateA; // Ordine decrescente per data
+      }
+
+      // SE la data è identica AL MILLISECONDO, allora usa la priorità di stato (se il filtro scalato è attivo)
+      if (filters.includes(this.SCALATO)) {
         const priorityA = this.priorityOrder[a.stato] || Number.POSITIVE_INFINITY;
         const priorityB = this.priorityOrder[b.stato] || Number.POSITIVE_INFINITY;
         return priorityA - priorityB;
-      });
-    }
-    return [...filtered].sort((a, b) => {
-      const dateA = new Date(a.dataAggiornamento).getTime();
-      const dateB = new Date(b.dataAggiornamento).getTime();
-      return dateB - dateA; // Ordina per data di aggiornamento (più recente prima)
+      }
+
+      return 0;
     });
   });
 
