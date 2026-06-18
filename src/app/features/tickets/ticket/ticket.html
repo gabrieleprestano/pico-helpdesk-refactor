@@ -117,10 +117,12 @@
           <!-- User Initials -->
           <div class="flex items-center gap-x-2">
             <span
-              class="grid place-items-center text-sm bg-muted-foreground rounded-full border border-border p-1 text-primary-foreground font-medium"
+              class="grid size-8 place-items-center text-sm bg-muted-foreground rounded-full border border-border text-primary-foreground font-medium select-none"
               aria-label="User"
-              >{{ userInitials() }}</span
             >
+              {{ userInitials() }}
+            </span>
+
             <span class="text-xs text-muted-foreground">{{
               ticket()?.richiedente?.email || 'N/A'
             }}</span>

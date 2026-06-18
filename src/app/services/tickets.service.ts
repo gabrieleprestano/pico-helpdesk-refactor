@@ -23,6 +23,7 @@ export class TicketsService {
   protected userService = inject(UserService);
 
   protected readonly apiUrl = environment.apiBaseUrl;
+  protected readonly ticketsStreamURL = `${this.apiUrl}/tickets/stream?access_token=${encodeURIComponent(this.userService.getToken() || '')}`;
 
   constructor() {
     effect(() => {
@@ -106,6 +107,10 @@ export class TicketsService {
   deselectTicket() {
     this._hasClickedTicket.set(false);
   }
+
+  // Stream
+  private ticketsStream = signal<EventSource | null>(null);
+  private ticketsStreamReconnectTimer = signal<ReturnType<typeof setTimeout> | null>(null);
 
   // Filtri & filteredTickets
   private readonly SCALATO = 'SCALATO' as TicketStatus;
@@ -229,6 +234,57 @@ export class TicketsService {
   });
 
   // Metodi
+  startTicketChangeStream() {
+    if (this.ticketsStream() !== null) return;
+
+    const reconnectTimer = this.ticketsStreamReconnectTimer();
+    if (reconnectTimer !== null) {
+      clearTimeout(reconnectTimer);
+      this.ticketsStreamReconnectTimer.set(null);
+    }
+
+    const stream = new EventSource(this.ticketsStreamURL);
+    this.ticketsStream.set(stream);
+
+    stream.addEventListener('ready', () => {
+      console.log('Stream dei ticket pronto.');
+    });
+
+    stream.addEventListener('tickets-changed', () => {
+      console.log('I ticket sono cambiati sul server! Ricarico...');
+      this.ticketsResource.reload();
+    });
+
+    stream.onerror = () => {
+      console.error('Errore nello stream dei ticket. Tentativo di riconnessione in corso...');
+
+      if (stream.readyState === EventSource.CLOSED) {
+        this.stopTicketsChangeStream();
+
+        this.ticketsStreamReconnectTimer.set(
+          setTimeout(() => {
+            console.log('Tentativo di riconnessione allo stream dei ticket...');
+            this.startTicketChangeStream();
+          }, 2000),
+        );
+      }
+    };
+  }
+
+  stopTicketsChangeStream(): void {
+    const reconnectTimer = this.ticketsStreamReconnectTimer();
+
+    if (reconnectTimer !== null) {
+      clearTimeout(reconnectTimer);
+      this.ticketsStreamReconnectTimer.set(null);
+    }
+
+    if (this.ticketsStream() !== null) {
+      this.ticketsStream()?.close();
+      this.ticketsStream.set(null);
+    }
+  }
+
   toggleStatusFilter(status: TicketStatus) {
     this._activeTicketStatusFilters.update((filters) => {
       if (status === this.TUTTI) {

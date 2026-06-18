@@ -15,14 +15,14 @@
     @if (user()) {
       <div class="relative flex items-center gap-x-1.5" (click)="toggleUserMenu()">
         <!-- User -->
-        <div class="flex items-center gap-x-3">
+        <div class="flex items-center gap-1">
           <span
-            class="grid place-items-center bg-muted-foreground rounded-full border border-border p-1.5 text-primary-foreground font-medium transition-transform will-change-transform duration-200 ease-in-out cursor-pointer hover:scale-105"
+            class="grid place-items-center size-9 bg-muted-foreground rounded-full border border-border  text-primary-foreground font-medium transition-transform will-change-transform duration-200 ease-in-out cursor-pointer hover:scale-105 select-none"
             aria-label="User"
             >{{ userInitials() }}</span
           >
 
-          <div class="hidden sm:flex flex-col">
+          <div class="hidden sm:flex flex-col leading-tight py-1 px-2 rounded-md hover:bg-muted cursor-pointer">
             <h3 class="text-sm font-medium">{{ userName() }}</h3>
             <small class="text-xs text-muted-foreground">{{ userEmail() }}</small>
           </div>

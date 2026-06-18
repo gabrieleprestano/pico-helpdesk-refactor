@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { Container } from '../../layout/container/container';
 import { TicketsService } from '../../services/tickets.service';
 import { CommonModule } from '@angular/common';
@@ -24,7 +24,7 @@ import { TicketSkeletonDetail } from '../../shared/ticket-skeleton-detail/ticket
   templateUrl: './tickets.html',
   styleUrl: './tickets.css',
 })
-export class Tickets {
+export class Tickets implements OnInit, OnDestroy {
   private ticketsService = inject(TicketsService);
 
   tickets = this.ticketsService.filteredTickets;
@@ -68,5 +68,13 @@ export class Tickets {
 
   isSelectedStatus(status: TicketStatus) {
     return this.ticketsService.activeTicketStatusFilters().includes(status);
+  }
+
+  ngOnInit(): void {
+    this.ticketsService.startTicketChangeStream();
+  }
+
+  ngOnDestroy(): void {
+    this.ticketsService.stopTicketsChangeStream();
   }
 }
