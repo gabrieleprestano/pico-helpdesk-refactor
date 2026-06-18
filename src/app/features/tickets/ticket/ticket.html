@@ -224,7 +224,7 @@
     <!-- Ticket Messages -->
     @if ((ticket()?.messages?.length ?? 0) > 0) {
       <ul
-        class="grid grid-cols-1 gap-y-3 mt-3 rounded-lg border border-border p-2 md:p-4 bg-primary-foreground max-h-150 h-full overflow-y-auto"
+        class="grid grid-cols-1 gap-y-3 mt-3 rounded-lg border border-border p-2 md:p-4 bg-primary-foreground max-h-150 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-border"
         aria-orientation="vertical"
       >
         @for (message of orderedMessages(); track message.id) {
