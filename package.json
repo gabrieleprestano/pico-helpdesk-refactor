@@ -8,6 +8,14 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "esbuild",
+      "lmdb",
+      "msgpackr-extract"
+    ]
+  },
   "private": true,
   "packageManager": "pnpm@11.5.1",
   "dependencies": {
