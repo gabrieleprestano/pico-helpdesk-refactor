@@ -51,7 +51,7 @@ export class Tickets implements OnInit, OnDestroy {
   // Effect to handle automatic navigation to the first ticket when the component is initialized and there are tickets available, but no specific ticket is selected yet.
   constructor() {
     effect(() => {
-      const ticketsList = this.ticketsService.tickets()?.sort((a, b) => new Date(b.dataCreazione).getTime() - new Date(a.dataCreazione).getTime());
+      const ticketsList = (this.ticketsService.tickets() || []).sort((a, b) => new Date(b.dataCreazione).getTime() - new Date(a.dataCreazione).getTime());
       const currentTicketID = this.ticketsService.ticketId();
 
       if (ticketsList && ticketsList.length > 0 && !currentTicketID) {
