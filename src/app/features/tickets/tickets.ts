@@ -8,6 +8,7 @@ import { Header } from '../../core/header/header';
 import { TicketCard } from '../../shared/ticket-card/ticket-card';
 import { TicketSkeletonCard } from '../../shared/ticket-skeleton-card/ticket-skeleton-card';
 import { TicketSkeletonDetail } from '../../shared/ticket-skeleton-detail/ticket-skeleton-detail';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-tickets',
@@ -20,6 +21,7 @@ import { TicketSkeletonDetail } from '../../shared/ticket-skeleton-detail/ticket
     TicketCard,
     TicketSkeletonCard,
     TicketSkeletonDetail,
+    ReactiveFormsModule
   ],
   templateUrl: './tickets.html',
   styleUrl: './tickets.css',
@@ -48,6 +50,9 @@ export class Tickets implements OnInit, OnDestroy {
     return Math.ceil(totalTickets / this.TICKETS_PER_PAGE);
   });
 
+  // Search Query
+  search = new FormControl<string>('', { nonNullable: true, validators: [Validators.required, Validators.minLength(3), Validators.maxLength(15)] });
+
   // Effect to handle automatic navigation to the first ticket when the component is initialized and there are tickets available, but no specific ticket is selected yet.
   constructor() {
     effect(() => {
@@ -63,6 +68,13 @@ export class Tickets implements OnInit, OnDestroy {
         });
       }
     });
+  }
+
+  setSearchQuery(e: Event) {
+    e.preventDefault();
+
+    const query = this.search.value;
+    this.ticketsService.setSearchQuery(query.trim() === '' ? null : query.trim());
   }
 
   goToPreviousPage() {

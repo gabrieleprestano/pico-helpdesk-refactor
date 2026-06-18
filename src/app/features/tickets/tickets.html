@@ -68,6 +68,8 @@
             inputmode="latin"
             placeholder="Cerca per numero o richiedente"
             class="flex items-center w-full"
+            [formControl]="search"
+            (input)="setSearchQuery($event)"
           />
         </form>
 

@@ -112,6 +112,9 @@ export class TicketsService {
   private ticketsStream = signal<EventSource | null>(null);
   private ticketsStreamReconnectTimer = signal<ReturnType<typeof setTimeout> | null>(null);
 
+  // Search Query
+  private _searchQuery = signal<string | null>(null)
+
   // Filtri & filteredTickets
   private readonly SCALATO = 'SCALATO' as TicketStatus;
   private readonly TUTTI = 'ALL' as TicketStatus;
@@ -183,16 +186,18 @@ export class TicketsService {
 
     let filtered = this.tickets() || [];
 
-    // // Ricerca testuale su numero ticket, nome/email richiedente, titolo
-    // if (query) {
-    //   filtered = filtered.filter((ticket) => {
-    //     const matchesNumber = ticket.ticketNumber.toString().toLowerCase().includes(query);
-    //     const matchesRequester = ticket.richiedente.nome.toLowerCase().includes(query) || ticket.richiedente.email.toLowerCase().includes(query);
-    //     const matchesTitle = ticket.titolo?.toLowerCase().includes(query);
+    // Ricerca testuale su numero ticket, nome/email richiedente, titolo
+    const query = this._searchQuery();
 
-    //     return matchesNumber || matchesRequester || matchesTitle;
-    //   });
-    // }
+    if (query && query.trim() !== '') {
+      filtered = filtered.filter((ticket) => {
+        const matchesNumber = ticket.ticketNumber.toString().toLowerCase().includes(query);
+        const matchesRequester = ticket.richiedente.nome.toLowerCase().includes(query) || ticket.richiedente.email.toLowerCase().includes(query);
+        const matchesTitle = ticket.titolo?.toLowerCase().includes(query);
+
+        return matchesNumber || matchesRequester || matchesTitle;
+      });
+    }
 
     // Filtri di stato/escalation
     if (!filters.includes(this.TUTTI)) {
@@ -234,6 +239,14 @@ export class TicketsService {
   });
 
   // Metodi
+  setSearchQuery(query: string | null) {
+    if (query === null || query.trim() === '') {
+      this._searchQuery.set(null);
+    } else {
+      this._searchQuery.set(query.trim());
+    }
+  }
+
   startTicketChangeStream() {
     if (this.ticketsStream() !== null) return;
 
