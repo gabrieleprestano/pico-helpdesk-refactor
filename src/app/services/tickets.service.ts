@@ -13,7 +13,7 @@ import { UserService } from './user.service';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 
 import { LucideTickets } from '@lucide/angular';
-import { map } from 'rxjs';
+import { map, of } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 
 @Service()
@@ -73,7 +73,7 @@ export class TicketsService {
     stream: ({ params }) => {
       const { id, tk } = params;
 
-      if (!id) throw new Error('ID del ticket mancante.');
+      if (!id) return of(null);
 
       if (!tk) {
         return this.getTicketById(id).pipe(
@@ -138,7 +138,7 @@ export class TicketsService {
       lucideIcon: LucideTickets,
       status: 'Nuovi',
       count: this.informations().newTickets || 0,
-      color: '#22c55e',
+      color: '#2563eb',
     },
     {
       lucideIcon: LucideTickets,
@@ -156,7 +156,7 @@ export class TicketsService {
       lucideIcon: LucideTickets,
       status: 'Risolti',
       count: this.informations().resolvedTickets || 0,
-      color: '#22c55e',
+      color: '#9ca3af',
     },
   ]);
 
